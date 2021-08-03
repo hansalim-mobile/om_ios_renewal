@@ -1,0 +1,13 @@
+/* 
+  Localizable.strings
+  hansalim
+
+  Created by mac on 2021/06/18.
+  
+*/
+"alert_title" = "알림";
+"cancel_msg" = "취소";
+"confirm_msg" = "확인";
+
+"force_update_msg" = "버전이 낮아 앱을 실행할 수 없습니다.\n 최신 버전으로 업데이트 후 이용하세요.";
+"select_update_msg" = "최신버전이 존재합니다. 업데이트하시겠습니까?"

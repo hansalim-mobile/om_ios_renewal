@@ -1,0 +1,82 @@
+
+#import <Availability.h>
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
+#import <AVFoundation/AVFoundation.h>
+
+#import "UIView+CustomConstraint.h"
+#import "NSString+Replace.h"
+
+#import "AppDelegate.h"
+
+// 로그 처리
+#ifdef DEBUG
+#else
+    #define NSLog(s, ... )
+#endif
+
+
+//#define BASE_URL              @"https://shop.hansalim.or.kr" // 실 서버 URL
+//#define BASE_URL              @"http://192.168.0.30:8080" // tobe 테스트 서버 url
+#define BASE_URL              @"https://shopping.hansalim.or.kr"  //  test3  shopping
+
+
+// ASIS
+//#define    HANSALIM_MAIN      (BASE_URL @"/om/main.do")
+//#define    LOADING_GIF        (BASE_URL @"/om/app/getIntroLink.do")
+//#define    DEVICE_CHECK       (BASE_URL @"/om/app/getDeviceRegId.do")
+//#define    PUSH_READ          (BASE_URL @"/om/app/setReadPush.ajax?pushId=")
+
+
+// TOBE
+#define    HANSALIM_MAIN      (BASE_URL @"/shopping/spMain.do")
+#define    LOADING_GIF        (BASE_URL @"/shopping/app/getIntroLink.do")
+#define    DEVICE_CHECK       (BASE_URL @"/shopping/app/getDeviceRegId.do")
+#define    PUSH_READ          (BASE_URL @"/shopping/app/setReadPush.do?pushId=")
+#define    LOGIN              (BASE_URL @"/shopping/login/shopLogin.do")
+
+// out app url
+#define ITUNESLINK         @"https://itunes.apple.com/kr/app/hansallim-mobile/id1062450710?mt=8"
+
+#define    selectY            @"Y"
+#define    selectN            @"N"
+#define     kAqUdid         @"aqUdid"
+#define     kAqUuid         @"aqUuid"
+
+#define MAX_PIC_SIZE 1280
+#define COMPRESS_QUALITY_JPEG 0.9  // .0 lowest  .5 medium   .75 high   1 highest
+
+#define kApnsNoti @"apnsNoti"
+#define kWillResignActive @"willResignActive"
+// user agent 이름
+#define vAgentNm @"hansalimApp"
+
+#define aqDelegate ((AppDelegate *)[[UIApplication sharedApplication] delegate])
+#define APP_BUNDLE     [[NSBundle mainBundle] bundleIdentifier]
+#define APP_VERSION    [[[NSBundle mainBundle] infoDictionary] objectForKey: @"CFBundleShortVersionString"]
+
+// 사진 첨부 path
+#define ATTACH_FILE_PATH [NSString stringWithFormat:@"%@/%@", [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0], @"attach"]
+
+// 스크린 사이즈
+#define SCREENHEIGHT [[UIScreen mainScreen] bounds].size.height
+#define SCREENWIDTH [[UIScreen mainScreen] bounds].size.width
+#define DEVICE_FRAME [[UIScreen mainScreen] bounds]
+#define STATUS_HEIGHT [UIApplication sharedApplication].statusBarFrame.size.height
+
+// 공통 함수
+#define AvoidNil(a) (a == nil ? @"" : a)
+#define GET_MAX(A,B)    ((A) > (B) ? (A) : (B))
+#define GET_MIN(A,B)    ((A) < (B) ? (A) : (B))
+#define UIColorFromHexToRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
+
+// 아이폰 종류별
+#define IS_IPHONE        (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+#define IS_IPHONE_4      (IS_IPHONE && [[UIScreen mainScreen] bounds].size.height == 480.0)
+#define IS_IPHONE_5      (IS_IPHONE && [[UIScreen mainScreen] bounds].size.height == 568.0)
+#define IS_IPHONE_6      (IS_IPHONE && [[UIScreen mainScreen] bounds].size.height == 667.0)
+//#define IS_IPHONE_6PLUS  (IS_IPHONE && [[UIScreen mainScreen] nativeScale] == 3.0f)
+#define IS_IPHONE_6_PLUS (IS_IPHONE && [[UIScreen mainScreen] bounds].size.height == 736.0)
+//#define IS_IPHONE_X      (IS_IPHONE && [[UIScreen mainScreen] bounds].size.height == 812.0)
