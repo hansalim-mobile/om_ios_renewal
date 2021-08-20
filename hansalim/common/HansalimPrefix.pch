@@ -18,9 +18,9 @@
 #endif
 
 
-//#define BASE_URL              @"https://shop.hansalim.or.kr" // 실 서버 URL
+#define BASE_URL              @"https://shop.hansalim.or.kr" // 실 서버 URL
 //#define BASE_URL              @"http://192.168.0.30:8080" // tobe 테스트 서버 url
-#define BASE_URL              @"https://shopping.hansalim.or.kr"  //  test3  shopping
+//#define BASE_URL              @"https://shopping.hansalim.or.kr"  //  test3  shopping
 
 
 // ASIS

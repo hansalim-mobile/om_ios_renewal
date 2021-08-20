@@ -35,6 +35,7 @@
 	<string>1</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>kakaolink</string>
 		<string>com.wooricard.wcard:</string>
 		<string>kftc-bankpay</string>
 		<string>unisign-app</string>

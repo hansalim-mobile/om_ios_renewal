@@ -136,8 +136,7 @@ NSString *const kGULHeartbeatStorageDirectory = @"Google/FIRApp";
   NSData *objectData = [NSData dataWithContentsOfURL:readingFileURL options:0 error:&error];
 
   if (objectData.length > 0 && error == nil) {
-    NSSet<Class> *objectClasses =
-        [NSSet setWithArray:@[ NSDictionary.class, NSDate.class, NSString.class ]];
+    NSSet<Class> *objectClasses = [NSSet setWithArray:@[ NSDictionary.class, NSDate.class ]];
     heartbeatDictionary = [GULSecureCoding unarchivedObjectOfClasses:objectClasses
                                                             fromData:objectData
                                                                error:&error];

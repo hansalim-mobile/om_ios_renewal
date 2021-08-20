@@ -7,6 +7,8 @@
 
 #import "AppDelegate.h"
 #import "PushHepler.h"
+#import "HybridAdapter.h"
+
 @import UserNotifications;
 
 @interface AppDelegate () <UNUserNotificationCenterDelegate> {
@@ -224,7 +226,7 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
     NSDictionary *dict = [self parseQueryString:[url query]];
     NSLog(@"application openURL options \n NSDictionary Data \n%@", dict );
     NSLog(@"callback Data \n%@",[dict objectForKey:@"callback"]);
-    
+
     //공인인증서 인증 ok
     if([[dict objectForKey:@"sidCheck"]isEqualToString:@"0"]) {
         sidCheck = @"true";

@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-
+#import <WebKit/WebKit.h>
 @interface HybridAdapter : NSObject {
 
 }
@@ -16,5 +16,6 @@
 + (BOOL) isUniSignInstalled;
 + (BOOL) callUnisignByUri:(UIWebView *)webView uri:(NSURLRequest *)uri;
 + (BOOL) callWebResultByScheme:(NSURL *)uri;
++ (void) setWKWebView:(WKWebView *)wkWebView;
 
 @end

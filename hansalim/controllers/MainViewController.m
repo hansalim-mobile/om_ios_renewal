@@ -6,6 +6,7 @@
 //
 #import "MainViewController.h"
 #import "ServiceManager.h"
+#import "HybridAdapter.h"
 
 @interface MainViewController ()<SignInDelegate> {
     AppDelegate *appDelegate;
@@ -57,7 +58,7 @@
 
     for (NSHTTPCookie *cookie in saved_cookies) {
         [[[WKWebsiteDataStore defaultDataStore] httpCookieStore] setCookie:cookie completionHandler:^{
-            NSLog(@"WKWebsiteDataStore setCookie [%@] complete !!", cookie.name);
+            NSLog(@"WKWebsiteDataStore setCookie Name : [%@], Value : [%@]", cookie.name, cookie.value);
         }];
     }
     
@@ -67,6 +68,7 @@
 
     [self setWebVSettingDelegate:[self curWebView]];
     [self.wkContainer addSubview:[self curWebView]];
+    [HybridAdapter setWKWebView:[self curWebView]];
     [[self curWebView] fill_parent];
 
     // user agent 값을 수정한 뒤 웹을 로드한다.
@@ -85,11 +87,6 @@
     NSLog(@"showPush");
     // 만약 child 웹뷰가 있다면 모두 삭제한다.
     [self removeAllChildWebView];
-    
-    
-//    if([PushHepler getInstance].imgUrl.length > 0) {
-//        NSLog(@"imgUrl URL [%@]", [PushHepler getInstance].imgUrl);
-//    }
     
     // push url 로드
     if([PushHepler getInstance].pushUrl.length > 0) {
@@ -287,7 +284,9 @@
     
     // 파라미터 dic에 셋팅
     NSDictionary *bridInfo = nil;
-    bridInfo = [Util jsonStrToDic:self.tempJsonTxt];
+//    if(self.tempJsonTxt.length>0) {
+        bridInfo = [Util jsonStrToDic:self.tempJsonTxt];
+//    }
 
     if([message.name isEqualToString:@"excuteBarcode"]) { // 바코드 뷰 컨트롤러 호출
         self.tempCallbackFunc = bridInfo[@"callbackFunc"];
@@ -311,8 +310,14 @@
         [self callJavaScript:bridInfo[@"callbackFunc"] paramDic:callbackInfo];
     }
     else if([message.name isEqualToString:@"setSessionId"]) { // 세션 아이디 저장
-        NSString *session = bridInfo[@"session"];
-        [[NSUserDefaults standardUserDefaults] setObject:session forKey:@"_session"];
+//        NSString *session = bridInfo[@"session"];
+//        [[NSUserDefaults standardUserDefaults] setObject:session forKey:@"_session"];
+        
+        [[[WKWebsiteDataStore defaultDataStore] httpCookieStore] getAllCookies:^(NSArray<NSHTTPCookie *> * _Nonnull result) {
+            NSData *encodedObject = [NSKeyedArchiver archivedDataWithRootObject:result requiringSecureCoding:YES error:nil];
+            [[NSUserDefaults standardUserDefaults] setObject:encodedObject forKey:@"saved_cookies"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }];
     }
     else if([message.name isEqualToString:@"externalBrowser"]) {
         NSString *url = bridInfo[@"url"];
@@ -536,29 +541,7 @@
     
     // unisign 연동
     else if([originalURL hasPrefix:@"unisign-app://"]) {
-        if([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
-            [[UIApplication sharedApplication] openURL:navigationAction.request.URL options:@{} completionHandler:^(BOOL success) {
-                NSLog(@"%@ [Opened url] %@ !!!", originalURL, success ? @"Success" : @"Fail");
-            }];
-        }
-        else {
-            UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"알림"
-                                                                                       message:@"통합인증센터가 설치되어 있지 않아\nApp Store로 이동합니다."
-                                                                                preferredStyle:UIAlertControllerStyleAlert];
-
-            UIAlertAction* ok = [UIAlertAction actionWithTitle:@"확인" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
-                NSString* URLString = @"https://itunes.apple.com/kr/app/gong-in-injeungsenteo/id426081742?mt=8";
-                NSURL* storeURL = [NSURL URLWithString:URLString];
-                [[UIApplication sharedApplication] openURL:storeURL options:@{} completionHandler:^(BOOL success) {
-                    NSLog(@"%@ [Opened url] %@ !!!", storeURL, success ? @"Success" : @"Fail");
-                }];
-
-                [myAlertController dismissViewControllerAnimated:YES completion:nil];
-            }];
-            [myAlertController addAction: ok];
-            [self presentViewController:myAlertController animated:YES completion:nil];
-        }
-
+        [HybridAdapter callUnisignByUri:nil uri:navigationAction.request];
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }
@@ -600,7 +583,18 @@
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }
-    
+    else if ([originalURL hasPrefix:@"kakaolink://"]){
+        if([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
+            [[UIApplication sharedApplication] openURL:navigationAction.request.URL options:@{} completionHandler:^(BOOL success) {
+                NSLog(@"%@ [Opened url] %@ !!!", originalURL, success ? @"Success" : @"Fail");
+            }];
+        }
+        else {
+            [self noAppDialog];
+        }
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
@@ -648,6 +642,9 @@
 
 - (BOOL)isExternalUrl:(NSString *) url {
     if([url containsString:@"hansalim.or.kr"]){
+        return NO;
+    }
+    else if([url containsString:@"192.168.0.30"]){
         return NO;
     }
     else {
@@ -776,46 +773,6 @@
 - (void)cookiesDidChangeInCookieStore:(WKHTTPCookieStore *)cookieStore {
     NSLog(@"cookiesDidChangeInCookieStore [%@]", cookieStore);
 }
-
-
-
-
-
-
-- (IBAction)testBtn:(id)sender {
-//    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
-//    BarcodeViewController *view = [storyboard instantiateViewControllerWithIdentifier:@"barcode"];
-//    view.delegate = self;
-//    [self presentViewController:view animated:true completion:nil];
-    
-    
-    NSData *encodedObject = [[NSUserDefaults standardUserDefaults] objectForKey:@"saved_cookies"];
-    id saved_cookies = [NSKeyedUnarchiver unarchiveObjectWithData:encodedObject];
-
-    for (NSHTTPCookie *cookie in saved_cookies) {
-        [[[WKWebsiteDataStore defaultDataStore] httpCookieStore] setCookie:cookie completionHandler:^{
-            NSLog(@"WKWebsiteDataStore setCookie complete !!");
-        }];
-    }
-
-}
-
-
-- (IBAction)testBtn2:(id)sender {
-
-    [[[WKWebsiteDataStore defaultDataStore] httpCookieStore] getAllCookies:^(NSArray<NSHTTPCookie *> * _Nonnull result) {
-        for (NSHTTPCookie *cookie in result) {
-            NSLog(@"cookie name [%@]", cookie.name);
-        }
-        
-        NSData *encodedObject = [NSKeyedArchiver archivedDataWithRootObject:result requiringSecureCoding:NO error:nil];
-        [[NSUserDefaults standardUserDefaults] setObject:encodedObject forKey:@"saved_cookies"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-    }];
-        
-    
-}
-
 
 @end
 

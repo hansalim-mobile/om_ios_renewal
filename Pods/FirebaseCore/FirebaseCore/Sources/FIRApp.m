@@ -129,7 +129,7 @@ static FIRApp *sDefaultApp;
   FIROptions *options = [FIROptions defaultOptions];
   if (!options) {
     [NSException raise:kFirebaseCoreErrorDomain
-                format:@"`FirebaseApp.configure()` could not find "
+                format:@"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) could not find "
                        @"a valid GoogleService-Info.plist in your project. Please download one "
                        @"from %@.",
                        kPlistURL];
@@ -250,11 +250,8 @@ static FIRApp *sDefaultApp;
   }
   FIRLogError(kFIRLoggerCore, @"I-COR000003",
               @"The default Firebase app has not yet been "
-              @"configured. Add `FirebaseApp.configure()` to your "
-              @"application initialization. This can be done in "
-              @"in the App Delegate's application(_:didFinishLaunchingWithOptions:)` "
-              @"(or the `@main` struct's initializer in SwiftUI). "
-              @"Read more: https://goo.gl/ctyzm8.");
+              @"configured. Add `[FIRApp configure];` (`FirebaseApp.configure()` in Swift) to your "
+              @"application initialization. Read more: https://goo.gl/ctyzm8.");
   return nil;
 }
 
