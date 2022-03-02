@@ -22,10 +22,14 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    splashTime = 1;
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//        [self goToMain2];
+//    });
+    
+    splashTime = 5;
     if([Util connectedToNetwork]) {
         [self setSplashImage];
-        
+
         // 최초 토큰이 없는 상태로 진입해야 할경우
         if([[NSUserDefaults standardUserDefaults] objectForKey:@"_token"] == nil) {
             [self nonDeviceCheck];
@@ -230,6 +234,17 @@
     }
 }
 
+
+
+
+-(void)goToMain2 {
+    UINavigationController *baseNaviC = (UINavigationController*)[self.storyboard instantiateViewControllerWithIdentifier:@"naviController"];
+    UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
+        while (topController.presentedViewController) {
+            topController = topController.presentedViewController;
+        }
+    [topController presentViewController:baseNaviC animated:YES completion:nil];
+}
 
 
 @end

@@ -189,6 +189,8 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
 #pragma mark - ASIS Hansalim Code
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    [HybridAdapter callWebResultByScheme:url];//v3.0.4 PARK JIHYE
+    
     NSDictionary *dict = [self parseQueryString:[url query]];
     NSLog(@"application openURL sourceApplication annotation \n NSDictionary Data \n%@", dict );
     NSLog(@"callback Data \n%@",[dict objectForKey:@"callback"]);
@@ -226,7 +228,9 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
     NSDictionary *dict = [self parseQueryString:[url query]];
     NSLog(@"application openURL options \n NSDictionary Data \n%@", dict );
     NSLog(@"callback Data \n%@",[dict objectForKey:@"callback"]);
-
+    
+    NSString *originalURL = url.absoluteString;
+    
     //공인인증서 인증 ok
     if([[dict objectForKey:@"sidCheck"]isEqualToString:@"0"]) {
         sidCheck = @"true";
@@ -291,9 +295,7 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
 
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-    NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
-    NSData *cookieData = [NSKeyedArchiver archivedDataWithRootObject:cookies];
-    [[NSUserDefaults standardUserDefaults] setObject:cookieData forKey:@"Cookies"];
+
 }
 
 
@@ -303,14 +305,6 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     NSLog(@"applicationDidBecomeActive");
-    
-    NSData *cookiesData = [[NSUserDefaults standardUserDefaults] objectForKey:@"Cookies"];
-    if ([cookiesData length])
-    {
-        NSArray *cookies = [NSKeyedUnarchiver unarchiveObjectWithData:cookiesData];
-        for ( NSHTTPCookie *cookie in cookies )
-            [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookie];
-    }
     
     if(sidCheck != nil && sidResult != nil) {
         [delegate sendWebReturn:sidCheck sidResult:sidResult britgeName:usigignBridgeName];

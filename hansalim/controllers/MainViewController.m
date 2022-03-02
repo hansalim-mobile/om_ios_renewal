@@ -51,17 +51,12 @@
     [userContentController addScriptMessageHandler:self name:@"externalBrowser"];
     webViewConfig.userContentController = userContentController;
     
-    
-
-    NSData *encodedObject = [[NSUserDefaults standardUserDefaults] objectForKey:@"saved_cookies"];
-    id saved_cookies = [NSKeyedUnarchiver unarchiveObjectWithData:encodedObject];
-
-    for (NSHTTPCookie *cookie in saved_cookies) {
-        [[[WKWebsiteDataStore defaultDataStore] httpCookieStore] setCookie:cookie completionHandler:^{
-            NSLog(@"WKWebsiteDataStore setCookie Name : [%@], Value : [%@]", cookie.name, cookie.value);
-        }];
-    }
-    
+    // sessiont cookies remove
+    NSSet* nSet= [NSSet setWithArray:@[WKWebsiteDataTypeSessionStorage]];
+    NSDate *nDate=[NSDate dateWithTimeIntervalSince1970:0];
+    [WKWebsiteDataStore.defaultDataStore removeDataOfTypes:nSet modifiedSince:nDate completionHandler:^{
+        NSLog(@"WKWebsiteDataTypeSessionStorage removed");
+    }];
 
     WKWebView *wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:webViewConfig];
     [self.createdWKWebViews addObject:wkWebView];
@@ -88,6 +83,11 @@
     // 만약 child 웹뷰가 있다면 모두 삭제한다.
     [self removeAllChildWebView];
     
+    
+//    if([PushHepler getInstance].imgUrl.length > 0) {
+//        NSLog(@"imgUrl URL [%@]", [PushHepler getInstance].imgUrl);
+//    }
+    
     // push url 로드
     if([PushHepler getInstance].pushUrl.length > 0) {
         NSURL *loadUrl = [NSURL URLWithString:[PushHepler getInstance].pushUrl];
@@ -110,18 +110,9 @@
 }
 
 
-#pragma mark - 백그라운드 이동시 쿠키 저장
 -(void)willResignActive:(NSNotification *)notification {
     NSLog(@"willResignActive func in !!! ");
-    [[[WKWebsiteDataStore defaultDataStore] httpCookieStore] getAllCookies:^(NSArray<NSHTTPCookie *> * _Nonnull result) {
-        for (NSHTTPCookie *cookie in result) {
-            NSLog(@"cookie name [%@]", cookie.name);
-        }
-        
-        NSData *encodedObject = [NSKeyedArchiver archivedDataWithRootObject:result requiringSecureCoding:YES error:nil];
-        [[NSUserDefaults standardUserDefaults] setObject:encodedObject forKey:@"saved_cookies"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-    }];
+
 }
 
 
@@ -145,6 +136,7 @@
     }
     // 링크값이 없는 경우 홈페이지를 로드한다.
     else {
+        //NSURL *loadUrl = [NSURL URLWithString:@"https://shop.hansalim.or.kr/shopping/CrossCert/webtoapp/sample.html"];//v3.0.4 PARK JIHYE
         NSURL *loadUrl = [NSURL URLWithString:HANSALIM_MAIN];
         if([[UIApplication sharedApplication] canOpenURL:loadUrl]) {
             NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:loadUrl];
@@ -310,14 +302,14 @@
         [self callJavaScript:bridInfo[@"callbackFunc"] paramDic:callbackInfo];
     }
     else if([message.name isEqualToString:@"setSessionId"]) { // 세션 아이디 저장
-//        NSString *session = bridInfo[@"session"];
-//        [[NSUserDefaults standardUserDefaults] setObject:session forKey:@"_session"];
+        NSString *session = bridInfo[@"session"];
+        [[NSUserDefaults standardUserDefaults] setObject:session forKey:@"_session"];
         
-        [[[WKWebsiteDataStore defaultDataStore] httpCookieStore] getAllCookies:^(NSArray<NSHTTPCookie *> * _Nonnull result) {
-            NSData *encodedObject = [NSKeyedArchiver archivedDataWithRootObject:result requiringSecureCoding:YES error:nil];
-            [[NSUserDefaults standardUserDefaults] setObject:encodedObject forKey:@"saved_cookies"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
-        }];
+//        [[[WKWebsiteDataStore defaultDataStore] httpCookieStore] getAllCookies:^(NSArray<NSHTTPCookie *> * _Nonnull result) {
+//            NSData *encodedObject = [NSKeyedArchiver archivedDataWithRootObject:result requiringSecureCoding:YES error:nil];
+//            [[NSUserDefaults standardUserDefaults] setObject:encodedObject forKey:@"saved_cookies"];
+//            [[NSUserDefaults standardUserDefaults] synchronize];
+//        }];
     }
     else if([message.name isEqualToString:@"externalBrowser"]) {
         NSString *url = bridInfo[@"url"];
