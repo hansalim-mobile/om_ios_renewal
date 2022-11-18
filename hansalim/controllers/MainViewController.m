@@ -41,9 +41,11 @@
 
     WKWebViewConfiguration *webViewConfig = [[WKWebViewConfiguration alloc] init];
     webViewConfig.preferences.javaScriptCanOpenWindowsAutomatically = YES;
+    WKUserScript* webReturnScript = [[WKUserScript alloc] initWithSource:@"Hybrid.thirdParty.responseCertificateApp()" injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:true];//v3.0.5 정기충전 미등록 버그 해결
     
     WKUserContentController *userContentController = [[WKUserContentController alloc] init];
     
+    [userContentController addUserScript:webReturnScript];//v3.0.5 정기충전 미등록 버그 해결
     [userContentController addScriptMessageHandler:self name:@"excuteBarcode"];
     [userContentController addScriptMessageHandler:self name:@"getDeviceId"];
     [userContentController addScriptMessageHandler:self name:@"getSessionId"];
